@@ -1,45 +1,37 @@
 CREATE TABLE departamentos (
     id_depto INT PRIMARY KEY,
-    nome_depto VARCHAR(50) NOT NULL
+    nome_depto VARCHAR(50)
 );
 
 CREATE TABLE funcionarios (
     id_func INT PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
+    nome VARCHAR(100),
     cargo VARCHAR(50),
     salario DECIMAL(10,2),
     data_admissao DATE,
     id_depto INT,
-    status_ativo BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (id_depto) REFERENCES departamentos(id_depto)
+    status_ativo INT DEFAULT 1,
+    CONSTRAINT fk_depto FOREIGN KEY (id_depto) REFERENCES departamentos(id_depto)
 );
 
-INSERT INTO departamentos (id_depto, nome_depto) VALUES 
-(1, 'Tecnologia'),
-(2, 'Recursos Humanos'),
-(3, 'Comercial');
+INSERT INTO departamentos VALUES (1, 'Tecnologia');
+INSERT INTO departamentos VALUES (2, 'RH');
+INSERT INTO departamentos VALUES (3, 'Vendas');
 
-INSERT INTO funcionarios (id_func, nome, cargo, salario, data_admissao, id_depto) VALUES 
-(101, 'Thales Silva', 'Estagiário de Desenvolvimento', 1800.00, '2026-03-01', 1),
-(102, 'Ana Oliveira', 'Analista de Sistemas', 4500.00, '2025-05-15', 1),
-(103, 'Carlos Souza', 'Gerente de RH', 6000.00, '2024-10-10', 2),
-(104, 'Mariana Lima', 'Executiva de Vendas', 3200.00, '2026-01-20', 3);
+INSERT INTO funcionarios VALUES (101, 'Thales Silva', 'Estagio TI', 1800.00, '2026-03-01', 1, 1);
+INSERT INTO funcionarios VALUES (102, 'Ana Oliveira', 'Analista', 4500.00, '2025-05-15', 1, 1);
+INSERT INTO funcionarios VALUES (103, 'Carlos Souza', 'Gerente', 6000.00, '2024-10-10', 2, 1);
+INSERT INTO funcionarios VALUES (104, 'Mariana Lima', 'Vendas', 3200.00, '2026-01-20', 3, 1);
 
--- Relatório: Média salarial e contagem por departamento
 SELECT 
-    d.nome_depto, 
-    COUNT(f.id_func) AS total_funcionarios,
-    AVG(f.salario) AS media_salarial
-FROM funcionarios f
-INNER JOIN departamentos d ON f.id_depto = d.id_depto
-WHERE f.status_ativo = TRUE
-GROUP BY d.nome_depto;
+    departamentos.nome_depto, 
+    COUNT(funcionarios.id_func) as total,
+    AVG(funcionarios.salario) as media
+FROM funcionarios
+INNER JOIN departamentos ON funcionarios.id_depto = departamentos.id_depto
+WHERE funcionarios.status_ativo = 1
+GROUP BY departamentos.nome_depto;
 
--- Consulta de busca por nome (case-insensitive)
-SELECT * FROM funcionarios 
-WHERE nome LIKE '%Thales%' AND status_ativo = TRUE;
+SELECT * FROM funcionarios WHERE nome LIKE '%Thales%';
 
--- Atualização de registro com critério de segurança
-UPDATE funcionarios 
-SET salario = 2000.00 
-WHERE id_func = 101;
+UPDATE funcionarios SET salario = 2000.00 WHERE id_func = 101;
